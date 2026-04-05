@@ -360,7 +360,7 @@
             "Haze1": "Haze1"
           }
         },
-        "Multiplicator": {"type": "Float", "min":-10, "max":10, "default":1, "description":"Speed of the encoder movement, only relevant for endless encoders"},
+        "Multiplicator": {"type": "Float", "min":-3, "max":3, "default":1, "description":"Gain after Value×100. For absolute 0–1 keep 1 (linear 0–100%). Above 1 compresses (e.g. 2 = full at half fader). For slow relative deltas use small |Value| and m>1, not high m with absolute 0–1."},
         "Value": {"type": "Float", "ui":"slider", "min":-10, "max":10, "default":0, "mappingIndex": 0}
       }
     },

@@ -166,8 +166,25 @@ function moveSpeedMasterBpmFader(speedMaster, value) {
 }
 
 function turnEncoder(encoder, multiplicator, value) {
-  script.log("Attribute " + encoder + " at + " + value*multiplicator);
-  local.send("/cmd", "Attribute " + encoder + " at + " + value*multiplicator);
+
+  // Coerce with parseFloat — Chataigne/QJS values are not always true JS numbers, so .toFixed can be missing.
+  // Avoid global isFinite(); it is not available as a function in some Chataigne/Qt JS builds.
+  var v = parseFloat(value);
+  var m = parseFloat(multiplicator);
+  if (v !== v || v === Infinity || v === -Infinity) v = 0;
+  if (m !== m || m === Infinity || m === -Infinity) m = 1;
+  if (m === 0) m = 1;
+  // Absolute 0–1 → MA percent: linear when multiplicator is 1 (scaled = v×100). m>1 compresses toward full (m=2 → v=0.5 is already 100%). m<1 stretches. For relative/delta sources, keep |Value| small and raise m instead.
+  var scaled = v * m * 100;
+  if (scaled > 1000) scaled = 1000;
+  if (scaled < -1000) scaled = -1000;
+  // No bitwise ops — Chataigne/Qt JS rejects '|' on Double.
+  var cents = scaled * 100;
+  var icents = cents >= 0 ? Math.floor(cents + 0.5) : Math.ceil(cents - 0.5);
+  var newValue = (icents / 100) + "";
+
+  script.log("Attribute " + encoder + " at " + newValue);
+  local.send("/cmd", "Attribute " + encoder + " at " + newValue);
 }
 
 function setProgrammerColor(color, layer) {
